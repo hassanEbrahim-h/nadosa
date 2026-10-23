@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday Nadine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,600&family=Nunito:wght@400;700&family=Cairo:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plum: #2a1233;
+    --plum-2: #3d1a4a;
+    --rose: #ff7aa8;
+    --blush: #ffd6e4;
+    --gold: #ffcf6e;
+    --cream: #fff6ee;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Nunito", "Segoe UI", sans-serif;
+    color: var(--cream);
+    background:
+      radial-gradient(60% 50% at 20% 10%, #6a2a73 0%, transparent 60%),
+      radial-gradient(50% 50% at 85% 90%, #8a2f5f 0%, transparent 60%),
+      var(--plum);
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 36px 16px 48px;
+    overflow-x: hidden;
+  }
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+  main { width: 100%; max-width: 440px; text-align: center; position: relative; z-index: 1; }
+
+  .kicker { font-size: 15px; color: var(--blush); opacity: .85; margin: 0 0 6px; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif; font-style: italic; font-weight: 600;
+    font-size: clamp(46px, 14vw, 68px); line-height: 1; margin: 0 0 6px;
+    background: linear-gradient(100deg, var(--gold), var(--rose));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { margin: 0 0 18px; color: var(--blush); font-size: 17px; }
+
+  h1 .nick { display: inline-block; font-family: "Cairo", sans-serif; font-style: normal; font-weight: 600; transition: opacity .3s, transform .3s; }
+  h1 .nick.out { opacity: 0; transform: translateY(10px) scale(.92); }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 26px; }
+  .chips button {
+    font-family: "Cairo", sans-serif; font-size: 16px; color: var(--cream);
+    border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06);
+    padding: 4px 14px; border-radius: 999px; cursor: pointer; transition: background .2s, transform .15s;
+  }
+  .chips button:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
+  .chips button.on { background: linear-gradient(100deg, #ff6f9c, #ff9a6b); color: #3a0f25; border-color: transparent; }
+  .chips button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  .menu { display: grid; gap: 12px; margin-bottom: 28px; }
+  .menu button {
+    font: inherit; font-weight: 700; font-size: 17px;
+    border: 1.5px solid rgba(255,255,255,.18); color: var(--cream);
+    padding: 15px 18px; border-radius: 999px; cursor: pointer;
+    background: rgba(255,255,255,.07); backdrop-filter: blur(6px);
+    transition: transform .15s, background .2s, border-color .2s;
+  }
+  .menu button:hover { transform: translateY(-2px); background: rgba(255,255,255,.14); }
+  .menu button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .menu button[aria-pressed="true"] {
+    background: linear-gradient(100deg, #ff6f9c, #ff9a6b); border-color: transparent; color: #3a0f25;
+  }
+
+  #stage {
+    min-height: 330px; border-radius: 24px; padding: 28px 20px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .in { animation: rise .5s cubic-bezier(.2,.8,.2,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+
+  .placeholder { color: var(--blush); opacity: .7; }
+
+  /* ---- Cake ---- */
+  .cake { position: relative; width: 240px; height: 210px; margin-top: 10px; cursor: pointer; }
+  .plate { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 270px; height: 10px; border-radius: 50%; background: #e9d9ee; opacity: .9; }
+  .tier { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 12px 12px 6px 6px; }
+  .t1 { bottom: 8px;  width: 230px; height: 66px; background: linear-gradient(#ff8fb4, #f0679a); }
+  .t2 { bottom: 74px; width: 170px; height: 56px; background: linear-gradient(#ffe2a8, #f6c36a); }
+  .drip { position: absolute; left: 50%; transform: translateX(-50%); bottom: 118px; width: 170px; height: 14px; background: var(--cream); border-radius: 10px 10px 0 0; }
+  .berry { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #d4204e; bottom: 130px; box-shadow: inset -2px -2px 0 rgba(0,0,0,.18); }
+  .candle { position: absolute; bottom: 130px; width: 9px; height: 38px; border-radius: 3px; }
+  .candle::after { /* wick */ content: ""; position: absolute; top: -5px; left: 3.5px; width: 2px; height: 6px; background: #4a2a2a; }
+  .flame {
+    position: absolute; top: -24px; left: -2.5px; width: 14px; height: 22px;
+    background: radial-gradient(ellipse at 50% 75%, #fffbd0 10%, #ffc84a 55%, #ff7a1a 100%);
+    border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+    transform-origin: 50% 100%;
+    animation: flicker .35s ease-in-out infinite alternate;
+    box-shadow: 0 0 18px 6px rgba(255,190,80,.55);
+    transition: opacity .35s, transform .35s;
+  }
+  @keyframes flicker { from { transform: scale(1) rotate(-4deg); } to { transform: scale(1.1,1.06) rotate(4deg); } }
+  .blown .flame { animation: none; opacity: 0; transform: scale(.2); }
+  .smoke { position: absolute; top: -34px; left: 1px; width: 6px; height: 30px; opacity: 0; border-radius: 6px; background: linear-gradient(rgba(255,255,255,.55), transparent); }
+  .blown .smoke { animation: smoke 1.6s ease-out; }
+  @keyframes smoke { 0% { opacity: .9; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-26px) scaleX(2); } }
+  .hint { margin: 16px 0 0; font-size: 14px; color: var(--blush); }
+
+  /* ---- Message ---- */
+  .wish { font-family: "Fraunces", Georgia, serif; font-style: italic; font-size: 28px; line-height: 1.35; margin: 0 0 14px; color: var(--gold); }
+  .wish-text { font-size: 18px; line-height: 1.7; margin: 0 0 14px; max-width: 34ch; }
+  .wish-ar { font-family: "Cairo", sans-serif; font-size: 22px; margin: 0; color: var(--blush); direction: rtl; }
+  .caret::after { content: "|"; margin-left: 2px; animation: blink .8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---- Date ---- */
+  .dob-label { margin: 0 0 8px; font-size: 16px; color: var(--blush); }
+  .dob-date { font-family: "Fraunces", Georgia, serif; font-style: italic; font-size: 52px; margin: 0 0 6px; color: var(--gold); }
+  .dob-hearts { font-size: 26px; letter-spacing: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .in, .flame, .blown .smoke, .caret::after { animation: none; }
+    .menu button { transition: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main>
+  <p class="kicker">A little something for you</p>
+  <h1><span class="nick" id="nick">نادين</span></h1>
+  <p class="sub">🎉 Birthday Greeting 🎉</p>
+  <div class="chips" id="chips" role="group" aria-label="Nadine's nicknames"></div>
+
+  <div class="menu" role="group" aria-label="Birthday options">
+    <button id="cakeBtn" aria-pressed="false">🎂 Show Cake</button>
+    <button id="msgBtn"  aria-pressed="false">💌 Happy Birthday Message</button>
+    <button id="dobBtn"  aria-pressed="false">📅 24 / 10 / 2002</button>
+  </div>
+
+  <section id="stage" aria-live="polite">
+    <p class="placeholder">Tap a button to open your surprise ✨</p>
+  </section>
+</main>
+
+<script>
+  const stage = document.getElementById("stage");
+  const buttons = { cake: cakeBtn, msg: msgBtn, dob: dobBtn };
+  let typer = null;
+
+  /* ---------- Nicknames ---------- */
+  const names = ["نادين", "نوندي", "نودي", "نونو", "ندوش", "نادو", "دودي", "نانا", "نونة", "نادونة", "قمر نادين"];
+  const nickEl = document.getElementById("nick");
+  const chipsEl = document.getElementById("chips");
+  let current = 0, rotator = null;
+
+  names.forEach((n, i) => {
+    const b = document.createElement("button");
+    b.textContent = n;
+    b.addEventListener("click", () => { setName(i); restartRotation(); });
+    chipsEl.appendChild(b);
+  });
+
+  function setName(i) {
+    current = i;
+    nickEl.classList.add("out");
+    setTimeout(() => {
+      nickEl.textContent = names[i];
+      nickEl.classList.remove("out");
+    }, 280);
+    [...chipsEl.children].forEach((c, k) => c.classList.toggle("on", k === i));
+    const ar = document.getElementById("ar");
+    if (ar) ar.textContent = "كل سنة وإنتي طيبة يا " + names[i] + " 💜";
+  }
+  function restartRotation() {
+    clearInterval(rotator);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    rotator = setInterval(() => setName((current + 1) % names.length), 2600);
+  }
+  setName(0);
+  restartRotation();
+
+  function show(which, html) {
+    clearInterval(typer);
+    stage.innerHTML = '<div class="in">' + html + '</div>';
+    for (const k in buttons) buttons[k].setAttribute("aria-pressed", k === which);
+  }
+
+  /* ---------- Cake ---------- */
+  cakeBtn.addEventListener("click", () => {
+    show("cake", `
+      <div class="cake" id="cake" role="button" tabindex="0" aria-label="Blow out the candles">
+        <div class="plate"></div>
+        <div class="tier t1"></div>
+        <div class="tier t2"></div>
+        <div class="drip"></div>
+        <div class="berry" style="left:62px"></div>
+        <div class="berry" style="left:107px"></div>
+        <div class="berry" style="left:152px"></div>
+        <div class="candle" style="left:80px;background:#5bb5ff"><div class="flame"></div><div class="smoke"></div></div>
+        <div class="candle" style="left:116px;background:#ff6f9c"><div class="flame"></div><div class="smoke"></div></div>
+        <div class="candle" style="left:152px;background:#7be0a8"><div class="flame"></div><div class="smoke"></div></div>
+      </div>
+      <p class="hint" id="hint">Make a wish, then tap the cake 🕯️</p>
+    `);
+    const cake = document.getElementById("cake");
+    const toggle = () => {
+      const blown = cake.classList.toggle("blown");
+      document.getElementById("hint").textContent = blown
+        ? "أمنيتك في السكة يا " + names[current] + " 💫 (اضغطي تاني عشان الشمع يولع)"
+        : "Make a wish, then tap the cake 🕯️";
+      if (blown) burst();
+    };
+    cake.addEventListener("click", toggle);
+    cake.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  });
+
+  /* ---------- Message (typewriter) ---------- */
+  msgBtn.addEventListener("click", () => {
+    show("msg", `
+      <p class="wish">Happy Birthday, Nadine!</p>
+      <p class="wish-text caret" id="typed"></p>
+      <p class="wish-ar" id="ar" style="opacity:0"></p>
+    `);
+    document.getElementById("ar").textContent = "كل سنة وإنتي طيبة يا " + names[current] + " 💜";
+    const text = "Wishing you a year full of joy, laughter and everything your heart hopes for. You deserve all of it.";
+    const el = document.getElementById("typed");
+    let i = 0;
+    typer = setInterval(() => {
+      el.textContent = text.slice(0, ++i);
+      if (i >= text.length) {
+        clearInterval(typer);
+        el.classList.remove("caret");
+        const ar = document.getElementById("ar");
+        ar.style.transition = "opacity .6s"; ar.style.opacity = 1;
+        burst();
+      }
+    }, 28);
+  });
+
+  /* ---------- Date of birth ---------- */
+  dobBtn.addEventListener("click", () => {
+    show("dob", `
+      <p class="dob-label">Date of Birth</p>
+      <p class="dob-date">24 / 10 / 2001</p>
+      <div class="dob-hearts">💜💜💜</div>
+    `);
+  });
+
+  /* ---------- Confetti ---------- */
+  const cv = document.getElementById("confetti"), ctx = cv.getContext("2d");
+  let parts = [], raf = null;
+  const colors = ["#ff7aa8", "#ffcf6e", "#7be0a8", "#5bb5ff", "#fff6ee", "#c58bff"];
+  function resize() { cv.width = innerWidth; cv.height = innerHeight; }
+  addEventListener("resize", resize); resize();
+
+  function burst() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    for (let i = 0; i < 90; i++) {
+      parts.push({
+        x: cv.width / 2, y: cv.height * 0.35,
+        vx: (Math.random() - .5) * 11, vy: Math.random() * -11 - 3,
+        s: Math.random() * 7 + 4, r: Math.random() * 6, vr: (Math.random() - .5) * .35,
+        c: colors[(Math.random() * colors.length) | 0], life: 0
+      });
+    }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+  function tick() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter(p => p.y < cv.height + 20 && p.life < 220);
+    for (const p of parts) {
+      p.vy += .25; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6);
+      ctx.restore();
+    }
+    raf = parts.length ? requestAnimationFrame(tick) : null;
+  }
+</script>
+</body>
+</html>
